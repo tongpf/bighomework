@@ -24,7 +24,7 @@ def play(stat,storage):
     version:
         1.0:    date:2018/6/5   by sid  对play函数模板的一些看法。主要是play中函数调用可以更简单，对函数参数接口要求可以更明确。增加对函数的注释的模板。
     '''
-    return is_safe(stat,storage) 
+    return storage['is_safe'](stat,storage) 
 
 def load(stat,storage):
     from random import choice
@@ -55,7 +55,6 @@ def load(stat,storage):
             by Tong
         '''
         return path
-    
     def is_safe(stat,storage):
         '''
         函数说明：一个功能很多的函数
@@ -71,4 +70,6 @@ def load(stat,storage):
         if True:   #判断是否需要更新路径
             storage['set_track'](stat,storage)
         return choice('lrxxxx')
+    storage['is_safe']=is_safe
+
     
