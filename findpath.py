@@ -1,3 +1,5 @@
+from timeit import Timer
+
 def find_path(stat,operate='me_to_home',pathstat=None,pathmark=None,outputmark='mypath'):
     '''
     寻路函数，寻找me/enemy到达各自领地，对方纸带，或给定路径的长度和路径
@@ -15,37 +17,38 @@ def find_path(stat,operate='me_to_home',pathstat=None,pathmark=None,outputmark='
     存在问题：
         出现同样distance的不同路径时如何寻找最优解
     '''
+
     if operate == 'me_to_home':
         myid = stat['me']['id']
         myx = stat['me']['x']
         myy = stat['me']['y']
-        statlist = stat['fields']
+        statlist = stat['fields'][:]
         fieldid = myid
     elif operate == 'enemy_to_home':
         myid = stat['enemy']['id']
         myx = stat['enemy']['x']
         myy = stat['enemy']['y']
-        statlist = stat['fields']
+        statlist = stat['fields'][:]
         fieldid = myid
     elif operate == 'me_to_path':
         myid = stat['me']['id']
         myx = stat['me']['x']
         myy = stat['me']['y']
         if not pathstat:
-            statlist = stat['bands']
+            statlist = stat['bands'][:]
             fieldid = stat['enemy']['id']
         else:
-            statlist = pathstat
+            statlist = pathstat[:]
             fieldid = pathmark
     elif operate == 'enemy_to_path':
         myid = stat['enemy']['id']
         myx = stat['enemy']['x']
         myy = stat['enemy']['y']
         if not pathstat:
-            statlist = stat['bands']
+            statlist = stat['bands'][:]
             fieldid = stat['me']['id']
         else:
-            statlist = pathstat
+            statlist = pathstat[:]
             fieldid = pathmark
 
     col_length = len(stat['fields'])#可以用storage里的size替代
@@ -178,10 +181,12 @@ def find_path(stat,operate='me_to_home',pathstat=None,pathmark=None,outputmark='
                             if len(path) == temp_distance:
                                 distance = temp_distance
                                 finalpath = path
-        outputpath = [[None for j in range(row_length)] for i in range(col_length)]
-        for item in finalpath:
-            outputpath[item[1]][item[2]]=item[0]
-    return outputpath, distance
+    for x in range(col_length):
+        for y in range(row_length):
+            statlist[x][y] = None
+    for item in finalpath:
+        statlist[item[1]][item[2]]=item[0]
+    return statlist, distance
 
 if __name__=='__main__':
     stat={}
@@ -195,8 +200,12 @@ if __name__=='__main__':
     stat['enemy']['id']=2
     stat['enemy']['x']=2
     stat['enemy']['y']=2
-    stat['fields'] = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,1]]
-    stat['bands'] = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,1,0,0,0,0],[0,1,1,1,0,0]]
+    fieldlist = [[0 for j in range(101)] for i in range(101)]
+    stat['fields'] = fieldlist
+    #stat['fields'] = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,1]]
+    stat['bands'] = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,1,0,2,0,0],[0,1,1,1,0,0]]
     finalpath, distance = find_path(stat,'me_to_home')
+    t1 = Timer("find_path(stat,'me_to_home')","from __main__ import find_path,stat")
+    print(t1.timeit(number=1))
     print(distance)
     print(finalpath)
