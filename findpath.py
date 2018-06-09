@@ -227,12 +227,13 @@ def find_path(stat,operate='me_to_home',pathstat=None,pathmark=None,outputmark='
 
 def path_not_find(pathstat,pathmark,outputmark,x,y,id):
     index = [1,-1]
+    p=pathstat
     d=stat['size'][0]+stat['size'][1]
     for i in index:
         try:
-            if stat['now']['bands'][x+i][y]!=id:
-                tempp,tempd = find_path(stat,operate='custom',pathstat=pathstat,pathmark=pathmark,outputmark=outputmark,myx=x+i,myy=y,myid=id)
-                if tempd < d:
+            if stat['now']['bands'][abs(x+i)][abs(y)]!=id:
+                tempp,tempd = find_path(stat,operate='custom',pathstat=pathstat,pathmark=pathmark,outputmark=outputmark,myx=abs(x+i),myy=abs(y),myid=id)
+                if tempd <= d:
                     p = tempp
                     d = tempd
                     nextx = x+i
@@ -241,9 +242,9 @@ def path_not_find(pathstat,pathmark,outputmark,x,y,id):
             pass
     for i in index:
         try:
-            if stat['now']['bands'][x][y+i]!=id:
-                tempp,tempd = find_path(stat,operate='custom',pathstat=pathstat,pathmark=pathmark,outputmark=outputmark,myx=x,myy=y+i,myid=id)
-                if tempd < d:
+            if stat['now']['bands'][abs(x)][abs(y+i)]!=id:
+                tempp,tempd = find_path(stat,operate='custom',pathstat=pathstat,pathmark=pathmark,outputmark=outputmark,myx=abs(x),myy=abs(y+i),myid=id)
+                if tempd <= d:
                     p = tempp
                     d = tempd
                     nextx = x
@@ -259,8 +260,8 @@ if __name__=='__main__':
     me={}
     stat['now']['me']=me
     stat['now']['me']['id'] = 1
-    stat['now']['me']['x'] = 1
-    stat['now']['me']['y'] = 5
+    stat['now']['me']['x'] = 4
+    stat['now']['me']['y'] = 0
     enemy={}
     stat['now']['enemy']=enemy
     stat['now']['enemy']['id']=2
@@ -271,15 +272,15 @@ if __name__=='__main__':
     stat['now']['fields'] = [
     [0,0,0,0,0,0],
     [0,0,0,0,0,0],
-    [0,1,1,0,0,0],
-    [0,1,1,0,0,0],
+    [0,0,0,1,1,0],
+    [0,0,0,1,1,0],
     [0,0,0,0,0,0]]
     stat['now']['bands'] = [
     [0,0,0,0,0,0],
     [0,0,0,0,0,0],
-    [0,0,0,1,1,0],
-    [0,0,0,1,0,0],
-    [0,0,1,1,0,0]]
+    [0,1,1,0,0,0],
+    [0,1,0,0,0,0],
+    [1,1,0,0,0,0]]
     stat['size'] = [len(stat['now']['fields']),len(stat['now']['fields'][0])]
     #for i in range(10):
     finalpath, distance = find_path(stat,'me_to_home')
