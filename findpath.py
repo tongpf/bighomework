@@ -61,8 +61,6 @@ def find_path(stat,operate='me_to_home',pathstat=None,pathmark=None,outputmark='
     outputpath = []
     col_length = stat['size'][0]
     row_length = stat['size'][1]
-    #col_length = len(stat['now']['fields'])#可以用storage里的size替代
-    #row_length = len(stat['now']['fields'][0])
     distance = col_length + row_length
     finalpath = []
 
@@ -76,164 +74,159 @@ def find_path(stat,operate='me_to_home',pathstat=None,pathmark=None,outputmark='
                 #判断距离是否更小
                 if temp_distance <= distance:
                     #分四象限考虑
-                    if x < myx and y < myy:#第二象限
-                        #是不是边缘点
-                        if statlist[x+1][y] != fieldid and statlist[x][y+1] != fieldid:#角落
-                            path1 = [(outputmark,i,y) for i in range(x,myx) if stat['now']['bands'][i][y]!=myid]
-                            path2 = [(outputmark,myx,j) for j in range(y,myy) if stat['now']['bands'][myx][j]!=myid]
-                            path = path1 + path2
-                            if len(path) == temp_distance:
-                                distance = temp_distance
-                                finalpath = path
-                            else:
-                                path1 = [(outputmark,x,j) for j in range(y,myy) if stat['now']['bands'][x][j]!=myid]
-                                path2 = [(outputmark,i,myy) for i in range(x,myx) if stat['now']['bands'][i][myy]!=myid]
-                                path = path1 + path2
-                                if len(path) == temp_distance:
+                    if x < myx:
+                        if y < myy:#第二象限
+                            #是不是边缘点
+                            if statlist[x+1][y] != fieldid and statlist[x][y+1] != fieldid:#角落
+                                makesense,path1 = _findpath2(x,myx,y,myid,outputmark)
+                                makesense,path2 = _findpath1(y,myy,myx,myid,outputmark,makesense)
+                                if makesense:
                                     distance = temp_distance
-                                    finalpath = path
-                        elif statlist[x+1][y] != fieldid:#同上一
-                            path1 = [(outputmark,i,y) for i in range(x,myx) if stat['now']['bands'][i][y]!=myid]
-                            path2 = [(outputmark,myx,j) for j in range(y,myy) if stat['now']['bands'][myx][j]!=myid]
-                            path = path1 + path2
-                            if len(path) == temp_distance:
-                                distance = temp_distance
-                                finalpath = path
-                        elif statlist[x][y+1] != fieldid:#同上二
-                            path1 = [(outputmark,x,j) for j in range(y,myy) if stat['now']['bands'][x][j]!=myid]
-                            path2 = [(outputmark,i,myy) for i in range(x,myx) if stat['now']['bands'][i][myy]!=myid]
-                            path = path1 + path2
-                            if len(path) == temp_distance:
-                                distance = temp_distance
-                                finalpath = path
-                    elif x > myx and y < myy:#第一象限
-                        if statlist[x-1][y] != fieldid and statlist[x][y+1] != fieldid:#角落
-                            path1 = [(outputmark,i,y) for i in range(myx+1,x+1) if stat['now']['bands'][i][y]!=myid]
-                            path2 = [(outputmark,myx,j) for j in range(y,myy) if stat['now']['bands'][myx][j]!=myid]
-                            path = path1 + path2
-                            if len(path) == temp_distance:
-                                distance = temp_distance
-                                finalpath = path
-                            else:
-                                path1 = [(outputmark,x,j) for j in range(y,myy) if stat['now']['bands'][x][j]!=myid]
-                                path2 = [(outputmark,i,myy) for i in range(myx+1,x+1) if stat['now']['bands'][i][myy]!=myid]
-                                path = path1 + path2
-                                if len(path) == temp_distance:
+                                    finalpath = path1 + path2
+                                else:
+                                    makesense,path1 = _findpath1(y,myy,x,myid,outputmark)
+                                    makesense,path2 = _findpath2(x,myx,myy,myid,outputmark,makesense)
+                                    if makesense:
+                                        distance = temp_distance
+                                        finalpath = path1 + path2
+                            elif statlist[x+1][y] != fieldid:#同上一
+                                makesense,path1 = _findpath2(x,myx,y,myid,outputmark)
+                                makesense,path2 = _findpath1(y,myy,myx,myid,outputmark,makesense)
+                                if makesense:
                                     distance = temp_distance
-                                    finalpath = path
-                        elif statlist[x-1][y] != fieldid:
-                            path1 = [(outputmark,i,y) for i in range(myx+1,x+1) if stat['now']['bands'][i][y]!=myid]
-                            path2 = [(outputmark,myx,j) for j in range(y,myy) if stat['now']['bands'][myx][j]!=myid]
-                            path = path1 + path2
-                            if len(path) == temp_distance:
-                                distance = temp_distance
-                                finalpath = path
-                        elif statlist[x][y+1] != fieldid:
-                            path1 = [(outputmark,x,j) for j in range(y,myy) if stat['now']['bands'][x][j]!=myid]
-                            path2 = [(outputmark,i,myy) for i in range(myx+1,x+1) if stat['now']['bands'][i][myy]!=myid]
-                            path = path1 + path2
-                            if len(path) == temp_distance:
-                                distance = temp_distance
-                                finalpath = path
-                    elif x < myx and y > myy:#第三象限
-                        if statlist[x+1][y] != fieldid and statlist[x][y-1] != fieldid:#角落
-                            path1 = [(outputmark,i,y) for i in range(x,myx) if stat['now']['bands'][i][y]!=myid]
-                            path2 = [(outputmark,myx,j) for j in range(myy+1,y+1) if stat['now']['bands'][myx][j]!=myid]
-                            path = path1 + path2
-                            if len(path) == temp_distance:
-                                distance = temp_distance
-                                finalpath = path
-                            else:
-                                path1 = [(outputmark,x,j) for j in range(myy+1,y+1) if stat['now']['bands'][x][j]!=myid]
-                                path2 = [(outputmark,i,myy) for i in range(x,myx) if stat['now']['bands'][i][myy]!=myid]
-                                path = path1 + path2
-                                if len(path) == temp_distance:
+                                    finalpath = path1 + path2
+                            elif statlist[x][y+1] != fieldid:#同上二
+                                makesense,path1 = _findpath1(y,myy,x,myid,outputmark)
+                                makesense,path2 = _findpath2(x,myx,myy,myid,outputmark,makesense)
+                                if makesense:
                                     distance = temp_distance
-                                    finalpath = path
-                        elif statlist[x+1][y] != fieldid:#同上一
-                            path1 = [(outputmark,i,y) for i in range(x,myx) if stat['now']['bands'][i][y]!=myid]
-                            path2 = [(outputmark,myx,j) for j in range(myy+1,y+1) if stat['now']['bands'][myx][j]!=myid]
-                            path = path1 + path2
-                            if len(path) == temp_distance:
-                                distance = temp_distance
-                                finalpath = path
-                        elif statlist[x][y-1] != fieldid:#同上二
-                            path1 = [(outputmark,x,j) for j in range(myy+1,y+1) if stat['now']['bands'][x][j]!=myid]
-                            path2 = [(outputmark,i,myy) for i in range(x,myx) if stat['now']['bands'][i][myy]!=myid]
-                            path = path1 + path2
-                            if len(path) == temp_distance:
-                                distance = temp_distance
-                                finalpath = path
-                    elif x > myx and y > myy:#第四象限
-                        if statlist[x-1][y] != fieldid and statlist[x][y-1] != fieldid:#角落
-                            path1 = [(outputmark,i,y) for i in range(myx+1,x+1) if stat['now']['bands'][i][y]!=myid]
-                            path2 = [(outputmark,myx,j) for j in range(myy+1,y+1) if stat['now']['bands'][myx][j]!=myid]
-                            path = path1 + path2
-                            if len(path) == temp_distance:
-                                distance = temp_distance
-                                finalpath = path
-                            else:
-                                path1 = [(outputmark,x,j) for j in range(myy+1,y+1) if stat['now']['bands'][x][j]!=myid]
-                                path2 = [(outputmark,i,myy) for i in range(myx+1,x+1) if stat['now']['bands'][i][myy]!=myid]
-                                path = path1 + path2
-                                if len(path) == temp_distance:
+                                    finalpath = path1 + path2
+                        elif y > myy:#第三象限
+                            if statlist[x+1][y] != fieldid and statlist[x][y-1] != fieldid:#角落
+                                makesense,path1 = _findpath2(x,myx,y,myid,outputmark)
+                                makesense,path2 = _findpath1(myy+1,y+1,myx,myid,outputmark,makesense)
+                                if makesense:
                                     distance = temp_distance
-                                    finalpath = path
-                        elif statlist[x-1][y] != fieldid:
-                            path1 = [(outputmark,i,y) for i in range(myx+1,x+1) if stat['now']['bands'][i][y]!=myid]
-                            path2 = [(outputmark,myx,j) for j in range(myy+1,y+1) if stat['now']['bands'][myx][j]!=myid]
-                            path = path1 + path2
+                                    finalpath = path1 + path2
+                                else:
+                                    makesense,path1 = _findpath1(myy+1,y+1,x,myid,outputmark)
+                                    makesense,path2 = _findpath2(x,myx,myy,myid,outputmark,makesense)
+                                    if makesense:
+                                        distance = temp_distance
+                                        finalpath = path1 + path2
+                            elif statlist[x+1][y] != fieldid:#同上一
+                                makesense,path1 = _findpath2(x,myx,y,myid,outputmark)
+                                makesense,path2 = _findpath1(myy+1,y+1,myx,myid,outputmark,makesense)
+                                if makesense:
+                                    distance = temp_distance
+                                    finalpath = path1 + path2
+                            elif statlist[x][y-1] != fieldid:#同上二
+                                makesense,path1 = _findpath1(myy+1,y+1,x,myid,outputmark)
+                                makesense,path2 = _findpath2(x,myx,myy,myid,outputmark,makesense)
+                                if makesense:
+                                    distance = temp_distance
+                                    finalpath = path1 + path2
+                        else:
+                            path = [(outputmark,i,y) for i in range(x,myx) if stat['now']['bands'][i][y]!=myid]
                             if len(path) == temp_distance:
                                 distance = temp_distance
                                 finalpath = path
-                        elif statlist[x][y-1] != fieldid:
-                            path1 = [(outputmark,x,j) for j in range(myy+1,y+1) if stat['now']['bands'][x][j]!=myid]
-                            path2 = [(outputmark,i,myy) for i in range(myx+1,x+1) if stat['now']['bands'][i][myy]!=myid]
-                            path = path1 + path2
+                    elif x > myx:
+                        if y < myy:#第一象限
+                            if statlist[x-1][y] != fieldid and statlist[x][y+1] != fieldid:#角落
+                                makesense,path1 = _findpath2(myx+1,x+1,y,myid,outputmark)
+                                makesense,path2 = _findpath1(y,myy,myx,myid,outputmark,makesense)
+                                if makesense:
+                                    distance = temp_distance
+                                    finalpath = path1 + path2
+                                else:
+                                    makesense,path1 = _findpath1(y,myy,x,myid,outputmark)
+                                    makesense,path2 = _findpath2(myx+1,x+1,myy,myid,outputmark,makesense)
+                                    if makesense:
+                                        distance = temp_distance
+                                        finalpath = path1 + path2
+                            elif statlist[x-1][y] != fieldid:
+                                makesense,path1 = _findpath2(myx+1,x+1,y,myid,outputmark)
+                                makesense,path2 = _findpath1(y,myy,myx,myid,outputmark,makesense)
+                                if makesense:
+                                    distance = temp_distance
+                                    finalpath = path1 + path2
+                            elif statlist[x][y+1] != fieldid:
+                                makesense,path1 = _findpath1(y,myy,x,myid,outputmark)
+                                makesense,path2 = _findpath2(myx+1,x+1,myy,myid,outputmark,makesense)
+                                if makesense:
+                                    distance = temp_distance
+                                    finalpath = path1 + path2
+                        elif y > myy:#第四象限
+                            if statlist[x-1][y] != fieldid and statlist[x][y-1] != fieldid:#角落
+                                makesense,path1 = _findpath2(myx+1,x+1,y,myid,outputmark)
+                                makesense,path2 = _findpath1(myy+1,y+1,myx,myid,outputmark,makesense)
+                                if makesense:
+                                    distance = temp_distance
+                                    finalpath = path1 + path2
+                                else:
+                                    makesense,path1 = _findpath1(myy+1,y+1,x,myid,outputmark)
+                                    makesense,path2 = _findpath2(myx+1,x+1,myy,myid,outputmark,makesense)
+                                    if makesense:
+                                        distance = temp_distance
+                                        finalpath = path1 + path2
+                            elif statlist[x-1][y] != fieldid:
+                                makesense,path1 = _findpath2(myx+1,x+1,y,myid,outputmark)
+                                makesense,path2 = _findpath1(myy+1,y+1,myx,myid,outputmark,makesense)
+                                if makesense:
+                                    distance = temp_distance
+                                    finalpath = path1 + path2
+                            elif statlist[x][y-1] != fieldid:
+                                makesense,path1 = _findpath1(myy+1,y+1,x,myid,outputmark)
+                                makesense,path2 = _findpath2(myx+1,x+1,myy,myid,outputmark,makesense)
+                                if makesense:
+                                    distance = temp_distance
+                                    finalpath = path1 + path2
+                        else:
+                            path = [(outputmark,i,y) for i in range(myx+1,x+1) if stat['now']['bands'][i][y]!=myid]
                             if len(path) == temp_distance:
                                 distance = temp_distance
                                 finalpath = path
-                    elif x == myx and y < myy:
-                        path = [(outputmark,myx,j) for j in range(y,myy) if stat['now']['bands'][myx][j]!=myid]
-                        if len(path) == temp_distance:
-                            distance = temp_distance
-                            finalpath = path
-                    elif x == myx and y > myy:
-                        path = [(outputmark,myx,j) for j in range(myy+1,y+1) if stat['now']['bands'][myx][j]!=myid]
-                        if len(path) == temp_distance:
-                            distance = temp_distance
-                            finalpath = path
-                    elif x < myx and y == myy:
-                        path = [(outputmark,i,y) for i in range(x,myx) if stat['now']['bands'][i][y]!=myid]
-                        if len(path) == temp_distance:
-                            distance = temp_distance
-                            finalpath = path
-                    elif x > myx and y == myy:
-                        path = [(outputmark,i,y) for i in range(myx+1,x+1) if stat['now']['bands'][i][y]!=myid]
-                        if len(path) == temp_distance:
-                            distance = temp_distance
-                            finalpath = path
                     else:
-                        distance = 0
-                        finalpath = []
+                        if y < myy:
+                            path = [(outputmark,myx,j) for j in range(y,myy) if stat['now']['bands'][myx][j]!=myid]
+                            if len(path) == temp_distance:
+                                distance = temp_distance
+                                finalpath = path
+                        elif y > myy:
+                            path = [(outputmark,myx,j) for j in range(myy+1,y+1) if stat['now']['bands'][myx][j]!=myid]
+                            if len(path) == temp_distance:
+                                distance = temp_distance
+                                finalpath = path
+                        else:
+                            distance = 0
+                            finalpath = []
+
     if distance == col_length+row_length and operate != 'custom':
-        outputpath, distance, nextx, nexty=path_not_find(statlist,fieldid,outputmark,myx,myy,myid)
-        outputpath[nextx][nexty] = outputmark
-        return outputpath, distance+1
+        correctoutputpath, correctdistance, nextx, nexty, success=path_not_find(statlist,fieldid,outputmark,myx,myy,myid)
+        if success:
+            correctoutputpath[nextx][nexty] = outputmark
+            return correctoutputpath, correctdistance+1
+        else:
+            return outputpath, distance
     else:
         for item in finalpath:
             outputpath[item[1]][item[2]]=item[0]
         return outputpath, distance
 
 def path_not_find(pathstat,pathmark,outputmark,x,y,id):
+    success = False
     index = [1,-1]
     p=pathstat
     d=stat['size'][0]+stat['size'][1]
+    nextx = x
+    nexty = y
     for i in index:
         try:
             if stat['now']['bands'][abs(x+i)][abs(y)]!=id:
                 tempp,tempd = find_path(stat,operate='custom',pathstat=pathstat,pathmark=pathmark,outputmark=outputmark,myx=abs(x+i),myy=abs(y),myid=id)
                 if tempd <= d:
+                    success = True
                     p = tempp
                     d = tempd
                     nextx = x+i
@@ -245,14 +238,34 @@ def path_not_find(pathstat,pathmark,outputmark,x,y,id):
             if stat['now']['bands'][abs(x)][abs(y+i)]!=id:
                 tempp,tempd = find_path(stat,operate='custom',pathstat=pathstat,pathmark=pathmark,outputmark=outputmark,myx=abs(x),myy=abs(y+i),myid=id)
                 if tempd <= d:
+                    success = True
                     p = tempp
                     d = tempd
                     nextx = x
                     nexty = y+i
         except IndexError:
             pass
-    return p, d, nextx, nexty
+    return p, d, nextx, nexty, success
 
+def _findpath1(d1,d2,constant,myid,outputmark,makesense = True):
+    temppath = []
+    for i in range(d1,d2):
+        if stat['now']['bands'][constant][i]!=myid:
+            temppath.append((outputmark,constant,i))
+        else:
+            makesense = False
+            break
+    return makesense, temppath
+
+def _findpath2(d1,d2,constant,myid,outputmark,makesense = True):
+    temppath = []
+    for i in range(d1,d2):
+        if stat['now']['bands'][i][constant]!=myid:
+            temppath.append((outputmark,i,constant))
+        else:
+            makesense = False
+            break
+    return makesense, temppath
 
 if __name__=='__main__':
     stat={}
@@ -260,8 +273,8 @@ if __name__=='__main__':
     me={}
     stat['now']['me']=me
     stat['now']['me']['id'] = 1
-    stat['now']['me']['x'] = 4
-    stat['now']['me']['y'] = 0
+    stat['now']['me']['x'] = 2
+    stat['now']['me']['y'] = 3
     enemy={}
     stat['now']['enemy']=enemy
     stat['now']['enemy']['id']=2
@@ -270,17 +283,17 @@ if __name__=='__main__':
     fieldlist = [[1 for j in range(101)] for i in range(101)]
     #stat['now']['fields'] = fieldlist
     stat['now']['fields'] = [
+    [1,0,0,0,0,0],
     [0,0,0,0,0,0],
     [0,0,0,0,0,0],
-    [0,0,0,1,1,0],
-    [0,0,0,1,1,0],
+    [0,0,0,0,0,0],
     [0,0,0,0,0,0]]
     stat['now']['bands'] = [
     [0,0,0,0,0,0],
     [0,0,0,0,0,0],
-    [0,1,1,0,0,0],
-    [0,1,0,0,0,0],
-    [1,1,0,0,0,0]]
+    [0,0,1,0,1,0],
+    [0,0,0,1,0,0],
+    [0,0,0,0,0,0]]
     stat['size'] = [len(stat['now']['fields']),len(stat['now']['fields'][0])]
     #for i in range(10):
     finalpath, distance = find_path(stat,'me_to_home')
